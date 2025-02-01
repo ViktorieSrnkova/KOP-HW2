@@ -36,9 +36,9 @@ def get_input():
     )
     parser.add_argument(
         "--et",
-        type=int,
-        default=10,
-        help="Freeze temperature (default: 10)"
+        type=float,
+        default=10.0,
+        help="Freeze temperature (default: 10.0)"
     )
     parser.add_argument(
         "--cooling",
@@ -70,13 +70,13 @@ def main():
         input_data = get_input()
 
         # Load instance file
-        instance_path = Path("./Data") / input_data.file
+        instance_path = Path("./") / input_data.file
         if not instance_path.is_file():
             raise FileNotFoundError(f"Unable to read instance file: {instance_path}")
         instance = Instance.parse(instance_path)
 
         # Load solution file
-        solution_path = Path("./Data") / input_data.solution  # Adjusted for your file structure
+        solution_path = Path("./") / input_data.solution  # Adjusted for your file structure
         if not solution_path.is_file():
             raise FileNotFoundError(f"Unable to read solution file: {solution_path}")
         solutions = Solutions.parse(solution_path)
@@ -92,7 +92,7 @@ def main():
             input_data.cooling,
             input_data.eq_coefficient
         )
-        weight, final_state, iterations, rel_err, duration = solver.solve(solution)
+        weight, iterations, rel_err, duration = solver.solve(solution)
 
         parent_folder_name = os.path.basename(os.path.dirname(input_data.file))
         results_file_path = Path("./Results") / f"res_{parent_folder_name}.csv"
@@ -103,7 +103,7 @@ def main():
         # Save result to CSV
         with open(results_file_path, mode='a', newline='') as file:
             writer = csv.writer(file, delimiter=',')
-            writer.writerow([instance.name, iterations, rel_err, duration, weight] + final_state) 
+            writer.writerow([instance.name, iterations, rel_err, duration, weight]) 
 
     except Exception as e:
         print(f"Error: {e}")
